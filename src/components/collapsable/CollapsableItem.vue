@@ -10,10 +10,10 @@
       <slot name="header" />
     </header>
     <div
-      ref="content"
+      ref="collapsableContent"
       class="overflow-hidden transition-all duration-200"
       :class="{ 'opacity-0': !isOpen }"
-      :style="heightStyles"
+      :style="dynamicStyles"
     >
       <slot name="default" />
     </div>
@@ -26,17 +26,27 @@ import { defineComponent, inject, ref, onMounted, computed, Ref, onBeforeUnmount
 
 export default defineComponent({
   setup () {
+    const collapsableContent = ref(null);
+    const root = ref(null);
+
     const dynamicHeight = ref(0);
     const contentHeight = ref(0);
-    const content = ref(null);
-    const root = ref(null);
+
     const closeItems = inject<Function>('closeItems');
     const accordion = inject<Ref<boolean>>('accordion');
 
     const isOpen = computed(() => dynamicHeight.value !== 0);
-    const heightStyles = computed(() => {
-      const height = String(dynamicHeight.value) + 'px';
-      return { maxHeight: height };
+    const dynamicStyles = computed(() => ({
+      maxHeight: String(dynamicHeight.value) + 'px',
+    }));
+
+    onMounted(() => {
+      window.addEventListener('resize', updateHeight);
+      updateHeight();
+    });
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('resize', updateHeight);
     });
 
     const close = (): void => { dynamicHeight.value = 0; };
@@ -55,28 +65,18 @@ export default defineComponent({
     };
 
     const updateHeight = (): void => {
-      const element = content.value as unknown as HTMLElement;
-      contentHeight.value = element.scrollHeight;
+      contentHeight.value = (collapsableContent.value as unknown as HTMLElement).scrollHeight;
 
       if (isOpen.value) {
-        dynamicHeight.value = element.scrollHeight;
+        dynamicHeight.value = contentHeight.value;
       }
     };
 
-    onMounted(() => {
-      window.addEventListener('resize', updateHeight);
-      updateHeight();
-    });
-
-    onBeforeUnmount(() => {
-      window.removeEventListener('resize', updateHeight);
-    });
-
     return {
       toggle,
-      heightStyles,
+      dynamicStyles,
       isOpen,
-      content,
+      collapsableContent,
       root,
       close,
     };
