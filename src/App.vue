@@ -3,7 +3,10 @@
     alt="Vue logo"
     src="./assets/logo.png"
   >
-  <CollapsableSection :accordion="true">
+  <CollapsableSection
+    :accordion="false"
+    :open-on-hover="false"
+  >
     <CollapsableItem>
       <template #header>
         Hello world!

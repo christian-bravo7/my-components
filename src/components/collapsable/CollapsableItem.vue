@@ -1,7 +1,9 @@
 <template>
   <div 
     ref="root"
-    class="shadow-md p-4 mb-4 last:mb-0" 
+    class="shadow-md p-4 mb-4 last:mb-0"
+    @mouseover="openOnMouseover"
+    @mouseout="closeOnMouseout"
   >
     <header
       class="text-xl mb-2 cursor-pointer"
@@ -34,6 +36,7 @@ export default defineComponent({
 
     const closeItems = inject<Function>('closeItems');
     const accordion = inject<Ref<boolean>>('accordion');
+    const openOnHover = inject<Ref<boolean>>('openOnHover');
 
     const isOpen = computed(() => dynamicHeight.value !== 0);
     const dynamicStyles = computed(() => ({
@@ -53,13 +56,27 @@ export default defineComponent({
     const open = (): void => { dynamicHeight.value = contentHeight.value; };
 
     const toggle = (): void => {
-      if (accordion!.value) {
-        closeItems!(root.value);
+      if (!openOnHover!.value) {
+        if (accordion!.value) {
+          closeItems!(root.value);
+        }
+  
+        if (!isOpen.value) {
+          open();
+        } else {
+          close();
+        }
       }
+    };
 
-      if (!isOpen.value) {
+    const openOnMouseover = (): void => {
+      if (openOnHover!.value) {
         open();
-      } else {
+      }
+    };
+
+    const closeOnMouseout = (): void => {
+      if (openOnHover!.value) {
         close();
       }
     };
@@ -79,6 +96,8 @@ export default defineComponent({
       collapsableContent,
       root,
       close,
+      openOnMouseover,
+      closeOnMouseout,
     };
   },
 });
