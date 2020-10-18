@@ -78,6 +78,7 @@ export default defineComponent({
       isOpen,
       content,
       root,
+      close,
     };
   },
 });

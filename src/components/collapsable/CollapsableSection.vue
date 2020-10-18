@@ -1,20 +1,14 @@
 <script lang="ts">
-import { defineComponent, toRefs, provide, h } from 'vue';
+import { defineComponent, toRefs, provide, h, ref } from 'vue';
 
-const useCollapseItemProvider = (props: any): void => {
+const useCollapsableItemOptionsProvider = (props: any): void => {
   const { accordion, openOnHover } = toRefs(props);
 
   provide('accordion', accordion);
   provide('openOnHover', openOnHover);
 };
 
-const useCollapsableAccordion = (): any => {
-  const collapsableItemRefs: any = [];
-
-  const setCollapsableItemRef = (el: any): void => {
-    collapsableItemRefs.push(el);
-  };
-
+const useCollapsableAccordion = (collapsableItemRefs: any): void => {
   const closeItems = (element: any): void => {
     collapsableItemRefs.forEach((collapsable: any) => {
       if (collapsable.$el !== element) {
@@ -24,8 +18,6 @@ const useCollapsableAccordion = (): any => {
   };
 
   provide('closeItems', closeItems);
-
-  return { setCollapsableItemRef };
 };
 
 export default defineComponent({
@@ -40,9 +32,14 @@ export default defineComponent({
     },
   },
   setup (props) {
-    useCollapseItemProvider(props);
+    const collapsableItemRefs = ref<Array<any>>([]);
 
-    const { setCollapsableItemRef } = useCollapsableAccordion();
+    useCollapsableItemOptionsProvider(props);
+    useCollapsableAccordion(collapsableItemRefs.value);
+
+    const setCollapsableItemRef = (element: any): void => {
+      collapsableItemRefs.value.push(element);
+    };
 
     return {
       setCollapsableItemRef,
