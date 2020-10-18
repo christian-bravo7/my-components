@@ -4,7 +4,7 @@
     src="./assets/logo.png"
   >
   <CollapsableSection
-    :accordion="false"
+    :accordion="true"
     :open-on-hover="false"
   >
     <CollapsableItem>

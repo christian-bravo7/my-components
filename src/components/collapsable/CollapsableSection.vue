@@ -12,7 +12,7 @@ const useCollapsableAccordion = (collapsableItemRefs: any): void => {
   const closeItems = (element: any): void => {
     collapsableItemRefs.forEach((collapsable: any) => {
       if (collapsable.$el !== element) {
-        collapsable.close();
+        collapsable.closeContent();
       }
     });
   };

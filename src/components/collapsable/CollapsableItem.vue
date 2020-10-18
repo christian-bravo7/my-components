@@ -13,7 +13,7 @@
     </header>
     <div
       ref="collapsableContent"
-      class="overflow-hidden transition-all duration-200"
+      class="overflow-hidden transition-all duration-200 ease-out"
       :class="{ 'opacity-0': !isOpen }"
       :style="dynamicStyles"
     >
@@ -27,21 +27,34 @@
 import { defineComponent, inject, ref, onMounted, computed, Ref, onBeforeUnmount } from 'vue';
 
 export default defineComponent({
-  setup () {
+  props: {
+    open: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  setup (props) {
     const collapsableContent = ref(null);
     const root = ref(null);
 
     const dynamicHeight = ref(0);
     const contentHeight = ref(0);
+    const initialOpened = ref(props.open);
 
     const closeItems = inject<Function>('closeItems');
     const accordion = inject<Ref<boolean>>('accordion');
     const openOnHover = inject<Ref<boolean>>('openOnHover');
 
     const isOpen = computed(() => dynamicHeight.value !== 0);
-    const dynamicStyles = computed(() => ({
-      maxHeight: String(dynamicHeight.value) + 'px',
-    }));
+    const dynamicStyles = computed(() => {
+      return !initialOpened.value
+        ? {
+            maxHeight: String(dynamicHeight.value) + 'px',
+          }
+        : {
+            maxHeight: '100%',
+          };
+    });
 
     onMounted(() => {
       window.addEventListener('resize', updateHeight);
@@ -52,8 +65,14 @@ export default defineComponent({
       window.removeEventListener('resize', updateHeight);
     });
 
-    const close = (): void => { dynamicHeight.value = 0; };
-    const open = (): void => { dynamicHeight.value = contentHeight.value; };
+    const closeContent = (): void => { 
+      if (initialOpened.value) {
+        initialOpened.value = false;
+      }
+
+      dynamicHeight.value = 0; 
+    };
+    const openContent = (): void => { dynamicHeight.value = contentHeight.value; };
 
     const toggle = (): void => {
       if (!openOnHover!.value) {
@@ -62,27 +81,31 @@ export default defineComponent({
         }
   
         if (!isOpen.value) {
-          open();
+          openContent();
         } else {
-          close();
+          closeContent();
         }
       }
     };
 
     const openOnMouseover = (): void => {
       if (openOnHover!.value) {
-        open();
+        openContent();
       }
     };
 
     const closeOnMouseout = (): void => {
       if (openOnHover!.value) {
-        close();
+        closeContent();
       }
     };
 
     const updateHeight = (): void => {
       contentHeight.value = (collapsableContent.value as unknown as HTMLElement).scrollHeight;
+
+      if (initialOpened.value) {
+        dynamicHeight.value = contentHeight.value;
+      }
 
       if (isOpen.value) {
         dynamicHeight.value = contentHeight.value;
@@ -95,9 +118,10 @@ export default defineComponent({
       isOpen,
       collapsableContent,
       root,
-      close,
+      closeContent,
       openOnMouseover,
       closeOnMouseout,
+      initialOpened,
     };
   },
 });
