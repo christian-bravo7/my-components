@@ -4,7 +4,7 @@
     src="./assets/logo.png"
   >
   <CollapsableSection
-    :accordion="true"
+    :accordion="false"
     :open-on-hover="false"
   >
     <CollapsableItem>
@@ -33,18 +33,21 @@
       </template>
     </CollapsableItem>
   </CollapsableSection>
+  <ButtonComponent />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import CollapsableSection from './components/collapsable/CollapsableSection.vue';
 import CollapsableItem from './components/collapsable/CollapsableItem.vue';
+import ButtonComponent from './components/button/ButtonComponent.vue';
 
 export default defineComponent({
   name: 'App',
   components: {
     CollapsableSection,
     CollapsableItem,
+    ButtonComponent,
   },
 });
 </script>
